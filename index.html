@@ -1,0 +1,1552 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#c9a227" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Ayoub.A,L" />
+  <meta name="application-name" content="Ayoub.A,L" />
+  <meta name="description" content="تطبيق بروفيسور التداول — Ayoub.A,L" />
+  <title>Ayoub.A,L — بروفيسور التداول</title>
+
+  <!-- PWA Manifest inline -->
+  <script>
+    const manifestData = {
+      name: "Ayoub.A,L — بروفيسور التداول",
+      short_name: "Ayoub.A,L",
+      description: "خبير التداول الشخصي بالذكاء الاصطناعي",
+      start_url: ".",
+      display: "standalone",
+      background_color: "#05060a",
+      theme_color: "#c9a227",
+      orientation: "portrait",
+      icons: [
+        { src: generateIcon(192), sizes: "192x192", type: "image/png", purpose: "any maskable" },
+        { src: generateIcon(512), sizes: "512x512", type: "image/png", purpose: "any maskable" }
+      ]
+    };
+    function generateIcon(size) {
+      const canvas = document.createElement('canvas');
+      canvas.width = size; canvas.height = size;
+      const ctx = canvas.getContext('2d');
+      // Background
+      ctx.fillStyle = '#05060a';
+      ctx.fillRect(0, 0, size, size);
+      // Gold circle
+      const grad = ctx.createRadialGradient(size/2,size/2,size*0.1, size/2,size/2,size*0.45);
+      grad.addColorStop(0, '#e8c85a');
+      grad.addColorStop(1, '#7a5f0d');
+      ctx.beginPath();
+      ctx.arc(size/2, size/2, size*0.42, 0, Math.PI*2);
+      ctx.fillStyle = '#0f1117';
+      ctx.fill();
+      ctx.strokeStyle = '#c9a227';
+      ctx.lineWidth = size * 0.04;
+      ctx.stroke();
+      // Chart icon
+      ctx.strokeStyle = '#c9a227';
+      ctx.lineWidth = size * 0.045;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.beginPath();
+      const s = size * 0.22;
+      const cx = size/2 - s/2;
+      const cy = size/2 + s*0.3;
+      ctx.moveTo(cx, cy);
+      ctx.lineTo(cx + s*0.3, cy - s*0.5);
+      ctx.lineTo(cx + s*0.6, cy - s*0.2);
+      ctx.lineTo(cx + s, cy - s*0.8);
+      ctx.stroke();
+      // A.L text
+      ctx.fillStyle = '#c9a227';
+      ctx.font = `bold ${size*0.13}px Arial`;
+      ctx.textAlign = 'center';
+      ctx.fillText('A.L', size/2, size*0.78);
+      return canvas.toDataURL('image/png');
+    }
+    // Register manifest
+    window.addEventListener('DOMContentLoaded', () => {
+      try {
+        const icons = [
+          { src: generateIcon(192), sizes: "192x192", type: "image/png", purpose: "any maskable" },
+          { src: generateIcon(512), sizes: "512x512", type: "image/png", purpose: "any maskable" }
+        ];
+        const manifest = { ...manifestData, icons };
+        const blob = new Blob([JSON.stringify(manifest)], {type:'application/json'});
+        const url  = URL.createObjectURL(blob);
+        const link = document.createElement('link');
+        link.rel = 'manifest'; link.href = url;
+        document.head.appendChild(link);
+        // Apple touch icon
+        const appleIcon = document.createElement('link');
+        appleIcon.rel = 'apple-touch-icon';
+        appleIcon.href = generateIcon(180);
+        document.head.appendChild(appleIcon);
+        // Favicon
+        const favicon = document.createElement('link');
+        favicon.rel = 'icon'; favicon.href = generateIcon(64);
+        document.head.appendChild(favicon);
+      } catch(e) {}
+    });
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --gold:     #c9a227;
+      --gold2:    #e8c85a;
+      --gold3:    #7a5f0d;
+      --green:    #00d49a;
+      --red:      #ff3f5e;
+      --bg:       #05060a;
+      --bg2:      #0b0d14;
+      --bg3:      #111420;
+      --bg4:      #191d2b;
+      --border:   #1e2235;
+      --border2:  #2a2f45;
+      --text:     #dde1f0;
+      --text2:    #9098b8;
+      --muted:    #4a5070;
+      --safe-top: env(safe-area-inset-top, 0px);
+      --safe-bot: env(safe-area-inset-bottom, 0px);
+    }
+    html, body {
+      height: 100%; height: 100dvh;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Cairo', 'Segoe UI', sans-serif;
+      overflow: hidden;
+      -webkit-tap-highlight-color: transparent;
+    }
+    #app { display: flex; flex-direction: column; height: 100%; height: 100dvh; }
+
+    /* ── HEADER ─────────────────────────────────────── */
+    #header {
+      background: var(--bg2);
+      border-bottom: 1px solid var(--border);
+      padding: calc(var(--safe-top) + 10px) 14px 10px;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-shrink: 0; z-index: 10;
+      position: relative;
+    }
+    #header::after {
+      content: '';
+      position: absolute; bottom: 0; left: 0; right: 0; height: 1px;
+      background: linear-gradient(90deg, transparent, var(--gold3), transparent);
+    }
+    .header-left { display: flex; align-items: center; gap: 11px; }
+    .avatar {
+      width: 46px; height: 46px; border-radius: 12px;
+      background: linear-gradient(145deg, #1a1200, #2a1f00);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px; flex-shrink: 0;
+      border: 1px solid #c9a22740;
+      box-shadow: 0 0 20px #c9a22720, inset 0 1px 0 #c9a22730;
+    }
+    .header-title { font-size: 14px; font-weight: 900; color: var(--gold); letter-spacing: .3px; }
+    .header-cred {
+      display: flex; align-items: center; gap: 6px; margin-top: 2px;
+    }
+    .cred-badge {
+      font-size: 9px; font-weight: 600; padding: 2px 7px; border-radius: 20px;
+      background: #0a0c14; border: 1px solid var(--border2); color: var(--text2);
+      font-family: 'IBM Plex Mono', monospace; letter-spacing: .4px;
+    }
+    .cred-badge.live { border-color: #00d49a44; color: var(--green); }
+    .live-dot { display: inline-block; width: 5px; height: 5px; background: var(--green); border-radius: 50%; animation: pulse 1.8s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(1.4)} }
+    .header-btns { display: flex; gap: 5px; }
+    .hbtn {
+      background: var(--bg3); border: 1px solid var(--border2);
+      border-radius: 9px; padding: 7px 10px; color: var(--muted);
+      cursor: pointer; font-size: 13px; transition: all .2s;
+    }
+    .hbtn:active { background: var(--bg4); color: var(--gold); border-color: var(--gold3); }
+    .hbtn.on { background: #110d00; border-color: var(--gold3); color: var(--gold); }
+
+    /* ── TICKER BAR ─────────────────────────────────── */
+    #ticker {
+      background: #080a10;
+      border-bottom: 1px solid var(--border);
+      padding: 0 12px;
+      display: flex; align-items: center; gap: 18px;
+      overflow-x: auto; flex-shrink: 0; height: 30px;
+      -webkit-overflow-scrolling: touch; scrollbar-width: none;
+    }
+    #ticker::-webkit-scrollbar { display: none; }
+    .tick { display: flex; align-items: center; gap: 5px; white-space: nowrap; flex-shrink: 0; }
+    .tick-name { font-size: 10px; font-weight: 700; color: var(--text2); font-family: 'IBM Plex Mono', monospace; }
+    .tick-price { font-size: 10px; color: var(--text); font-family: 'IBM Plex Mono', monospace; }
+    .tick-ch { font-size: 9px; font-family: 'IBM Plex Mono', monospace; }
+    .tick-ch.up { color: var(--green); }
+    .tick-ch.dn { color: var(--red); }
+    .tick-sep { width: 1px; height: 12px; background: var(--border); flex-shrink: 0; }
+
+    /* ── QUICK BAR ──────────────────────────────────── */
+    #quick-bar {
+      display: flex; gap: 6px; padding: 8px 12px;
+      border-bottom: 1px solid var(--border);
+      overflow-x: auto; flex-shrink: 0;
+      -webkit-overflow-scrolling: touch; scrollbar-width: none;
+    }
+    #quick-bar::-webkit-scrollbar { display: none; }
+    .qbtn {
+      background: var(--bg3); border: 1px solid var(--border2);
+      color: var(--text2); border-radius: 8px;
+      padding: 5px 12px; font-size: 11px; font-weight: 600;
+      white-space: nowrap; cursor: pointer; font-family: inherit;
+      transition: all .18s; flex-shrink: 0;
+    }
+    .qbtn:active { background: #110d00; border-color: var(--gold3); color: var(--gold); transform: scale(.97); }
+    .qbtn.g { border-color: #00d49a22; color: var(--green); }
+    .qbtn.r { border-color: #ff3f5e22; color: var(--red); }
+
+    /* ── CHAT ───────────────────────────────────────── */
+    #chat-wrap { flex: 1; display: flex; overflow: hidden; position: relative; }
+    #messages { flex: 1; overflow-y: auto; padding: 14px 12px 8px; -webkit-overflow-scrolling: touch; }
+    #messages::-webkit-scrollbar { width: 2px; }
+    #messages::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 4px; }
+
+    .msg-row { display: flex; margin-bottom: 12px; animation: fadeUp .22s ease; }
+    .msg-row.user { justify-content: flex-end; }
+    .msg-row.bot  { justify-content: flex-start; }
+    @keyframes fadeUp { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+
+    .msg-av {
+      width: 34px; height: 34px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 15px; flex-shrink: 0; margin-top: 1px;
+    }
+    .msg-av.bot-av {
+      background: linear-gradient(145deg, #1a1200, #2a1f00);
+      border: 1px solid #c9a22735; margin-left: 8px;
+    }
+    .msg-av.user-av { background: var(--bg4); border: 1px solid var(--border2); margin-right: 8px; }
+
+    .bubble-wrap { max-width: 80%; }
+    .bubble { padding: 10px 14px; font-size: 13.5px; line-height: 1.75; white-space: pre-wrap; word-break: break-word; }
+    .bubble.user {
+      background: linear-gradient(135deg, #150e00, #0d0900);
+      border: 1px solid #c9a22720;
+      border-radius: 14px 3px 14px 14px;
+      color: #d4b95a;
+    }
+    .bubble.bot {
+      background: linear-gradient(135deg, #0d1018, #090b12);
+      border: 1px solid #1e223580;
+      border-radius: 3px 14px 14px 14px;
+      color: var(--text);
+    }
+
+    /* credential strip on first bot message */
+    .prof-strip {
+      display: flex; align-items: center; gap: 8px;
+      padding: 6px 12px 0; margin-bottom: -2px;
+    }
+    .prof-strip .ps-name { font-size: 11px; font-weight: 700; color: var(--gold); }
+    .prof-strip .ps-title { font-size: 9px; color: var(--muted); }
+
+    .msg-time { font-size: 10px; color: #252a3a; margin-top: 3px; padding: 0 3px; }
+    .msg-row.user .msg-time { text-align: right; }
+    .msg-row.bot  .msg-time { text-align: left; }
+
+    /* Signal cards */
+    .sig-card { background: #090c14; border: 1px solid var(--border2); border-radius: 10px; padding: 10px 13px; margin-top: 8px; }
+    .sig-card.bull { border-left: 3px solid var(--green); }
+    .sig-card.bear { border-left: 3px solid var(--red); }
+    .sig-row { display: flex; justify-content: space-between; font-size: 12px; margin: 3px 0; }
+    .sig-lbl { color: var(--muted); }
+    .sig-val { font-weight: 700; font-family: 'IBM Plex Mono', monospace; }
+    .sv-g { color: var(--green); }
+    .sv-r { color: var(--red); }
+    .sv-y { color: var(--gold); }
+
+    /* Dots loader */
+    .dots span {
+      display: inline-block; width: 5px; height: 5px;
+      background: var(--gold); border-radius: 50%; margin: 0 2px;
+      animation: bounce .9s infinite ease-in-out; opacity: .5;
+    }
+    .dots span:nth-child(2){animation-delay:.18s}
+    .dots span:nth-child(3){animation-delay:.36s}
+    @keyframes bounce{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-5px)}}
+
+    /* ── SPLASH ──────────────────────────────────────── */
+    #splash {
+      position: fixed; inset: 0; background: #05060a;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      z-index: 9999; transition: opacity .5s ease;
+    }
+    #splash.hide { opacity: 0; pointer-events: none; }
+    .splash-icon {
+      width: 90px; height: 90px; border-radius: 22px;
+      background: linear-gradient(145deg, #1a1200, #2d2000);
+      border: 2px solid #c9a22755;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 44px; margin-bottom: 20px;
+      box-shadow: 0 0 40px #c9a22730;
+      animation: splashPop .6s cubic-bezier(.34,1.56,.64,1);
+    }
+    @keyframes splashPop { from{transform:scale(.5);opacity:0} to{transform:scale(1);opacity:1} }
+    .splash-name {
+      font-size: 22px; font-weight: 900; color: var(--gold);
+      letter-spacing: 1px; margin-bottom: 6px;
+    }
+    .splash-sub { font-size: 12px; color: var(--muted); margin-bottom: 30px; }
+    .splash-bar {
+      width: 120px; height: 3px; background: var(--bg3);
+      border-radius: 2px; overflow: hidden;
+    }
+    .splash-fill {
+      height: 100%; background: linear-gradient(90deg, var(--gold3), var(--gold));
+      border-radius: 2px; animation: fillBar 1.8s ease forwards;
+    }
+    @keyframes fillBar { from{width:0} to{width:100%} }
+
+    /* ── INSTALL BANNER ──────────────────────────────── */
+    #install-banner {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      background: linear-gradient(135deg, #0f1117, #0a0c14);
+      border-top: 1px solid var(--gold3);
+      padding: 14px 16px calc(var(--safe-bot) + 14px);
+      z-index: 500; display: none;
+      animation: slideUp .3s ease;
+    }
+    @keyframes slideUp { from{transform:translateY(100%)} to{transform:translateY(0)} }
+    .ib-row { display: flex; align-items: center; gap: 12px; }
+    .ib-icon { font-size: 28px; flex-shrink: 0; }
+    .ib-text { flex: 1; }
+    .ib-title { font-size: 13px; font-weight: 700; color: var(--text); }
+    .ib-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+    .ib-btns { display: flex; gap: 8px; margin-top: 10px; }
+    .ib-install {
+      flex: 1; padding: 9px; background: linear-gradient(135deg,var(--gold),#7a5f0d);
+      border: none; border-radius: 9px; color: #000; font-size: 12px;
+      font-weight: 900; cursor: pointer; font-family: inherit;
+    }
+    .ib-later {
+      padding: 9px 14px; background: var(--bg3); border: 1px solid var(--border2);
+      border-radius: 9px; color: var(--muted); font-size: 12px;
+      cursor: pointer; font-family: inherit;
+    }
+    #forecast-panel {
+      position: absolute; inset: 0; background: var(--bg);
+      z-index: 50; display: flex; flex-direction: column;
+      animation: fadeUp .22s ease;
+    }
+    .fp-header {
+      background: var(--bg2); border-bottom: 1px solid var(--border);
+      padding: 12px 14px; display: flex; align-items: center;
+      justify-content: space-between; flex-shrink: 0;
+    }
+    .fp-title { font-size: 14px; font-weight: 900; color: var(--gold); }
+    .fp-sub { font-size: 10px; color: var(--muted); margin-top: 2px; }
+    .fp-close { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 18px; }
+
+    .fp-tabs {
+      display: flex; gap: 0; border-bottom: 1px solid var(--border);
+      background: var(--bg2); flex-shrink: 0; overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .fp-tabs::-webkit-scrollbar { display: none; }
+    .fp-tab {
+      padding: 9px 16px; font-size: 11px; font-weight: 700;
+      color: var(--muted); cursor: pointer; white-space: nowrap;
+      border-bottom: 2px solid transparent; background: none;
+      border-left: none; border-right: none; border-top: none;
+      font-family: inherit; transition: all .2s; flex-shrink: 0;
+    }
+    .fp-tab.active { color: var(--gold); border-bottom-color: var(--gold); }
+
+    .fp-body { flex: 1; overflow-y: auto; padding: 14px 12px; }
+    .fp-body::-webkit-scrollbar { width: 2px; }
+    .fp-body::-webkit-scrollbar-thumb { background: var(--border2); }
+
+    /* Forecast card */
+    .fc-card {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: 13px; margin-bottom: 12px; overflow: hidden;
+    }
+    .fc-head {
+      padding: 11px 14px; display: flex; align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+    }
+    .fc-asset { display: flex; align-items: center; gap: 9px; }
+    .fc-icon { font-size: 20px; }
+    .fc-name { font-size: 13px; font-weight: 900; color: var(--text); }
+    .fc-pair { font-size: 10px; color: var(--muted); font-family: 'IBM Plex Mono', monospace; }
+    .fc-price-now { text-align: left; }
+    .fc-pnow { font-size: 14px; font-weight: 900; color: var(--text); font-family: 'IBM Plex Mono', monospace; }
+    .fc-ch { font-size: 10px; font-family: 'IBM Plex Mono', monospace; }
+    .fc-ch.up { color: var(--green); } .fc-ch.dn { color: var(--red); }
+
+    .fc-body { padding: 12px 14px; }
+    .fc-sentiment {
+      display: flex; align-items: center; gap: 8px; margin-bottom: 10px;
+    }
+    .fc-sent-bar {
+      flex: 1; height: 6px; background: var(--bg4);
+      border-radius: 3px; overflow: hidden;
+    }
+    .fc-sent-fill { height: 100%; border-radius: 3px; transition: width .8s ease; }
+    .fc-sent-label { font-size: 10px; font-weight: 700; min-width: 50px; text-align: center; }
+
+    .fc-targets {
+      display: grid; grid-template-columns: 1fr 1fr 1fr;
+      gap: 7px; margin-bottom: 10px;
+    }
+    .fc-target {
+      background: var(--bg3); border-radius: 9px; padding: 8px 9px;
+      border: 1px solid var(--border); text-align: center;
+    }
+    .fc-t-lbl { font-size: 9px; color: var(--muted); margin-bottom: 4px; }
+    .fc-t-val { font-size: 12px; font-weight: 900; font-family: 'IBM Plex Mono', monospace; }
+    .fc-t-pct { font-size: 9px; margin-top: 2px; font-family: 'IBM Plex Mono', monospace; }
+
+    .fc-signal {
+      display: flex; align-items: center; gap: 8px;
+      background: var(--bg3); border-radius: 9px;
+      padding: 8px 12px; border: 1px solid var(--border);
+      margin-bottom: 8px;
+    }
+    .fc-sig-icon { font-size: 16px; }
+    .fc-sig-text { font-size: 11px; color: var(--text2); line-height: 1.5; }
+    .fc-sig-text strong { color: var(--text); }
+
+    .fc-indicators {
+      display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 8px;
+    }
+    .fc-ind {
+      font-size: 10px; padding: 3px 9px; border-radius: 6px;
+      border: 1px solid var(--border2); font-family: 'IBM Plex Mono', monospace;
+    }
+    .fc-ind.bull { border-color: #00d49a33; color: var(--green); background: #00d49a08; }
+    .fc-ind.bear { border-color: #ff3f5e33; color: var(--red); background: #ff3f5e08; }
+    .fc-ind.neut { border-color: #c9a22733; color: var(--gold); background: #c9a22708; }
+
+    .fc-ai-btn {
+      width: 100%; padding: 9px; background: linear-gradient(135deg, #110d00, #0d0a00);
+      border: 1px solid var(--gold3); border-radius: 9px; color: var(--gold);
+      font-size: 12px; font-weight: 700; cursor: pointer; font-family: inherit;
+      transition: all .2s; display: flex; align-items: center;
+      justify-content: center; gap: 6px;
+    }
+    .fc-ai-btn:active { background: #1a1200; }
+    .fc-ai-btn.loading { opacity: .6; cursor: not-allowed; }
+
+    .fc-ai-result {
+      margin-top: 10px; padding: 10px 12px;
+      background: #07090f; border-radius: 9px;
+      border: 1px solid var(--border);
+      font-size: 12px; line-height: 1.7; color: var(--text);
+      white-space: pre-wrap; display: none;
+      direction: rtl; text-align: right;
+    }
+
+    /* Macro panel */
+    .macro-card {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: 13px; margin-bottom: 10px; overflow: hidden;
+    }
+    .macro-head {
+      padding: 10px 13px; background: var(--bg3);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 8px;
+    }
+    .macro-icon { font-size: 16px; }
+    .macro-title { font-size: 12px; font-weight: 700; color: var(--text); }
+    .macro-sub { font-size: 10px; color: var(--muted); }
+    .macro-body { padding: 10px 13px; }
+    .macro-row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 5px 0; border-bottom: 1px solid #13162080; font-size: 11.5px;
+    }
+    .macro-row:last-child { border-bottom: none; }
+    .macro-key { color: var(--text2); }
+    .macro-val { font-weight: 700; font-family: 'IBM Plex Mono', monospace; }
+    .mv-g { color: var(--green); } .mv-r { color: var(--red); } .mv-y { color: var(--gold); }
+
+    /* Fear & Greed */
+    .fg-wrap {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: 13px; padding: 14px; margin-bottom: 10px; text-align: center;
+    }
+    .fg-title { font-size: 11px; color: var(--muted); margin-bottom: 10px; }
+    .fg-meter {
+      width: 100%; height: 12px; background: linear-gradient(90deg, var(--red), #ff9500, var(--green));
+      border-radius: 6px; position: relative; margin-bottom: 8px;
+    }
+    .fg-needle {
+      position: absolute; top: -4px; width: 4px; height: 20px;
+      background: #fff; border-radius: 2px; transform: translateX(-50%);
+      transition: left 1s ease; box-shadow: 0 0 6px #fff5;
+    }
+    .fg-score { font-size: 32px; font-weight: 900; font-family: 'IBM Plex Mono', monospace; margin: 6px 0 4px; }
+    .fg-label { font-size: 13px; font-weight: 700; }
+    .fg-desc { font-size: 10px; color: var(--muted); margin-top: 4px; }
+
+    /* Refresh btn */
+    .fp-refresh {
+      display: flex; align-items: center; justify-content: center;
+      gap: 6px; padding: 10px; color: var(--muted); font-size: 11px;
+      cursor: pointer; background: none; border: none; font-family: inherit;
+      width: 100%;
+    }
+    .fp-refresh:active { color: var(--gold); }
+    #notes-panel {
+      width: 270px; background: var(--bg2);
+      border-right: 1px solid var(--border);
+      display: flex; flex-direction: column;
+      animation: slideL .2s ease; flex-shrink: 0;
+    }
+    @media (max-width: 500px) {
+      #notes-panel { position:absolute; top:0; right:0; bottom:0; width:88%; max-width:300px; z-index:100; box-shadow:-10px 0 40px #00000099; }
+    }
+    @keyframes slideL{from{opacity:0;transform:translateX(18px)}to{opacity:1;transform:translateX(0)}}
+    .notes-hd { padding:13px 14px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
+    .notes-ttl { color:var(--gold); font-weight:700; font-size:13px; }
+    .notes-x { background:none; border:none; color:var(--muted); cursor:pointer; font-size:17px; }
+    .notes-list { flex:1; overflow-y:auto; padding:10px; }
+    .note-card { background:var(--bg3); border-radius:9px; padding:9px 11px; margin-bottom:8px; border:1px solid var(--border); position:relative; }
+    .note-txt { color:var(--text); font-size:12px; line-height:1.55; padding-left:18px; }
+    .note-ts { color:var(--muted); font-size:9px; margin-top:3px; font-family:'IBM Plex Mono',monospace; }
+    .note-del { position:absolute; top:5px; left:8px; background:none; border:none; color:#ff5555; cursor:pointer; font-size:11px; }
+    .notes-ft { padding:10px; border-top:1px solid var(--border); }
+    .notes-ft input {
+      width:100%; background:var(--bg3); border:1px solid var(--border2);
+      border-radius:9px; padding:8px 11px; color:var(--text);
+      font-size:12px; font-family:inherit; outline:none; direction:rtl;
+    }
+    .notes-ft input:focus { border-color: var(--gold3); }
+    .notes-empty { color:var(--border2); font-size:12px; text-align:center; margin-top:28px; }
+
+    /* ── INPUT AREA ─────────────────────────────────── */
+    #input-area {
+      padding: 9px 12px calc(var(--safe-bot) + 9px);
+      background: var(--bg2);
+      border-top: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .input-box {
+      display: flex; align-items: flex-end; gap: 8px;
+      background: var(--bg3); border: 1px solid var(--border2);
+      border-radius: 13px; padding: 8px 10px; transition: border-color .25s;
+    }
+    .input-box.on { border-color: #c9a22755; }
+    #msg-input {
+      flex: 1; background: none; border: none; color: var(--text);
+      font-size: 14px; resize: none; line-height: 1.55;
+      max-height: 110px; overflow-y: auto;
+      font-family: inherit; outline: none;
+    }
+    #msg-input::placeholder { color: var(--muted); font-size: 13px; }
+    #send-btn {
+      width: 36px; height: 36px; border-radius: 9px; border: none;
+      cursor: pointer; flex-shrink: 0; display: flex;
+      align-items: center; justify-content: center;
+      font-size: 15px; transition: all .2s;
+    }
+    #send-btn.ready { background: linear-gradient(135deg, var(--gold), #7a5f0d); color: #000; }
+    #send-btn.idle  { background: var(--bg4); color: var(--muted); cursor: not-allowed; }
+    .hint { text-align:center; color:var(--muted); font-size: 10px; margin-top: 5px; opacity: .4; }
+
+    /* ── KEY MODAL ──────────────────────────────────── */
+    #key-modal {
+      position: fixed; inset: 0; background: #000000f0;
+      display: flex; align-items: center; justify-content: center;
+      z-index: 999; padding: 20px;
+    }
+    .key-card {
+      background: var(--bg2); border: 1px solid var(--border2);
+      border-radius: 18px; padding: 28px 22px;
+      max-width: 360px; width: 100%;
+      box-shadow: 0 0 60px #c9a22715;
+    }
+    .key-prof-head { display: flex; align-items: center; gap: 13px; margin-bottom: 18px; }
+    .key-av {
+      width: 52px; height: 52px; border-radius: 13px; flex-shrink: 0;
+      background: linear-gradient(145deg, #1a1200, #2d2000);
+      border: 1px solid #c9a22740;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 26px;
+    }
+    .key-name { font-size: 16px; font-weight: 900; color: var(--gold); }
+    .key-deg { font-size: 10px; color: var(--text2); margin-top: 2px; line-height: 1.5; }
+    .key-badges { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 14px; }
+    .kbadge {
+      font-size: 10px; padding: 3px 9px; border-radius: 20px;
+      border: 1px solid var(--border2); color: var(--text2);
+      font-family: 'IBM Plex Mono', monospace;
+    }
+    .kbadge.g { border-color: #00d49a33; color: var(--green); background: #00d49a08; }
+    .key-card p { color: var(--text2); font-size: 12.5px; line-height: 1.7; margin-bottom: 14px; }
+    .key-steps {
+      margin: 12px 0; padding: 11px 13px;
+      background: #070910; border-radius: 10px; border: 1px solid var(--border);
+    }
+    .key-steps p { color: var(--muted); font-size: 11px; margin-bottom: 5px; }
+    .key-steps a { color: var(--gold); font-size: 12px; font-weight: 700; }
+    .key-card input {
+      width: 100%; background: var(--bg3); border: 1px solid var(--border2);
+      border-radius: 10px; padding: 11px 13px; color: var(--text);
+      font-size: 13px; font-family: 'IBM Plex Mono', monospace;
+      outline: none; margin-bottom: 12px; direction: ltr;
+    }
+    .key-card input:focus { border-color: var(--gold3); }
+    .key-card button {
+      width: 100%; padding: 12px; font-size: 14px; font-weight: 700;
+      background: linear-gradient(135deg, var(--gold), #7a5f0d);
+      border: none; border-radius: 11px; color: #000;
+      cursor: pointer; font-family: inherit; letter-spacing: .3px;
+    }
+    .key-note { color: var(--muted); font-size: 10px; text-align: center; margin-top: 10px; }
+  </style>
+</head>
+<body>
+
+<!-- SPLASH SCREEN -->
+<div id="splash">
+  <div class="splash-icon">📊</div>
+  <div class="splash-name">Ayoub.A,L</div>
+  <div class="splash-sub">بروفيسور التداول · Gemini AI</div>
+  <div class="splash-bar"><div class="splash-fill"></div></div>
+</div>
+
+<!-- INSTALL BANNER -->
+<div id="install-banner">
+  <div class="ib-row">
+    <div class="ib-icon">📲</div>
+    <div class="ib-text">
+      <div class="ib-title">ثبّت تطبيق Ayoub.A,L</div>
+      <div class="ib-sub">أضفه لشاشتك الرئيسية للوصول الفوري</div>
+    </div>
+  </div>
+  <div class="ib-btns">
+    <button class="ib-install" onclick="installApp()">📲 تثبيت التطبيق</button>
+    <button class="ib-later" onclick="dismissInstall()">لاحقاً</button>
+  </div>
+</div>
+
+<!-- KEY MODAL -->
+<div id="key-modal">
+  <div class="key-card">
+    <div class="key-prof-head">
+      <div class="key-av">🎓</div>
+      <div>
+        <div class="key-name">بروفيسور التداول</div>
+        <div class="key-deg">تطبيق <span style="color:var(--gold);font-weight:900">Ayoub.A,L</span> الخاص<br>د. فيصل الأحمدي · CFA · CMT · خبرة 28 عاماً</div>
+      </div>
+    </div>
+    <div class="key-badges">
+      <span class="kbadge g">✓ مجاني</span>
+      <span class="kbadge">Gemini 2.0 Flash</span>
+      <span class="kbadge">فوركس · كريبتو · أسهم</span>
+    </div>
+    <p>خبيرك الشخصي المحترف في الأسواق المالية. أدخل مفتاح Gemini المجاني لتبدأ جلستك مع البروفيسور.</p>
+    <div class="key-steps">
+      <p>احصل على مفتاحك المجاني خلال ثوانٍ:</p>
+      <a href="https://aistudio.google.com/apikey" target="_blank">🔗 aistudio.google.com/apikey</a>
+    </div>
+    <input type="password" id="api-key-input" placeholder="AIza..." autocomplete="off" />
+    <button onclick="saveKey()">ابدأ الجلسة مع البروفيسور ➤</button>
+    <p class="key-note">🔒 مفتاحك يُحفظ محلياً على جهازك فقط</p>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app" style="display:none">
+  <div id="header">
+    <div class="header-left">
+      <div class="avatar">🎓</div>
+      <div>
+        <div class="header-title">د. فيصل — بروفيسور التداول</div>
+        <div class="header-cred">
+          <span class="cred-badge live"><span class="live-dot"></span> متاح الآن</span>
+          <span class="cred-badge">CFA · CMT · 28y</span>
+          <span class="cred-badge" style="border-color:#c9a22755;color:var(--gold)">Ayoub.A,L</span>
+        </div>
+      </div>
+    </div>
+    <div class="header-btns">
+      <button class="hbtn" id="forecast-btn" onclick="toggleForecast()" title="التوقعات">🔮</button>
+      <button class="hbtn" id="notes-btn" onclick="toggleNotes()" title="الملاحظات">📋</button>
+      <button class="hbtn" onclick="clearChat()">🗑</button>
+      <button class="hbtn" onclick="changeKey()">🔑</button>
+    </div>
+  </div>
+
+  <!-- TICKER -->
+  <div id="ticker">
+    <div class="tick tick-btc">
+      <span class="tick-name">BTC</span>
+      <span class="tick-price btc-p">—</span>
+      <span class="tick-ch btc-c">—</span>
+    </div>
+    <div class="tick-sep"></div>
+    <div class="tick">
+      <span class="tick-name">ETH</span>
+      <span class="tick-price eth-p">—</span>
+      <span class="tick-ch eth-c">—</span>
+    </div>
+    <div class="tick-sep"></div>
+    <div class="tick">
+      <span class="tick-name">SOL</span>
+      <span class="tick-price sol-p">—</span>
+      <span class="tick-ch sol-c">—</span>
+    </div>
+    <div class="tick-sep"></div>
+    <div class="tick">
+      <span class="tick-name">BNB</span>
+      <span class="tick-price bnb-p">—</span>
+      <span class="tick-ch bnb-c">—</span>
+    </div>
+    <div class="tick-sep"></div>
+    <div class="tick">
+      <span class="tick-name">XRP</span>
+      <span class="tick-price xrp-p">—</span>
+      <span class="tick-ch xrp-c">—</span>
+    </div>
+    <div class="tick-sep"></div>
+    <div class="tick">
+      <span class="tick-name">DOGE</span>
+      <span class="tick-price doge-p">—</span>
+      <span class="tick-ch doge-c">—</span>
+    </div>
+  </div>
+
+  <div id="quick-bar">
+    <button class="qbtn" onclick="quickSend('حلل السوق الآن وأعطني رأيك المهني')">📊 تحليل السوق</button>
+    <button class="qbtn g" onclick="quickSend('ما أفضل فرصة شراء الآن مع إدارة المخاطر؟')">🟢 فرصة شراء</button>
+    <button class="qbtn r" onclick="quickSend('ما إشارات البيع الآن؟ أعطني تحليلاً كاملاً')">🔴 إشارة بيع</button>
+    <button class="qbtn" onclick="quickSend('سعر بيتكوين الآن')">₿ BTC</button>
+    <button class="qbtn" onclick="quickSend('سعر إيثيريوم الآن')">Ξ ETH</button>
+    <button class="qbtn" onclick="quickSend('اشرح مؤشر RSI باحترافية مع أمثلة')">📉 RSI</button>
+    <button class="qbtn" onclick="quickSend('اشرح استراتيجية MACD مع الإشارات الصحيحة')">📈 MACD</button>
+    <button class="qbtn" onclick="quickSend('علّمني إدارة رأس المال كما تُعلِّم طلابك')">💰 إدارة رأس المال</button>
+    <button class="qbtn" onclick="quickSend('اشرح الشموع اليابانية — الأنماط الأكثر أهمية')">🕯 كانديلز</button>
+    <button class="qbtn" onclick="quickSend('ما الفرق الحقيقي بين الفوركس والعملات المشفرة؟')">🌐 فوركس vs كريبتو</button>
+    <button class="qbtn" onclick="quickSend('اعطني توقعاتك لسعر BTC هذا الأسبوع مع التحليل الكامل')">🔮 توقع BTC</button>
+    <button class="qbtn" onclick="quickSend('ما توقعاتك لسوق الكريبتو خلال الشهر القادم؟')">📅 توقع الشهر</button>
+    <button class="qbtn" onclick="quickSend('هل السوق في اتجاه صاعد أم هابط الآن؟ أعطني تحليلاً دقيقاً')">📊 اتجاه السوق</button>
+    <button class="qbtn" onclick="quickSend('اشرح فيبوناتشي وكيف أطبقه في التداول')">🌀 فيبوناتشي</button>
+  </div>
+
+  <div id="chat-wrap">
+    <div id="messages"></div>
+
+    <!-- FORECAST PANEL -->
+    <div id="forecast-panel" style="display:none">
+      <div class="fp-header">
+        <div>
+          <div class="fp-title">🔮 توقعات البروفيسور</div>
+          <div class="fp-sub">تحليل فني + ذكاء اصطناعي · يتجدد تلقائياً</div>
+        </div>
+        <button class="fp-close" onclick="toggleForecast()">✕</button>
+      </div>
+
+      <div class="fp-tabs">
+        <button class="fp-tab active" onclick="switchFpTab('crypto')">🪙 كريبتو</button>
+        <button class="fp-tab" onclick="switchFpTab('macro')">🌍 الماكرو</button>
+        <button class="fp-tab" onclick="switchFpTab('sentiment')">🧠 المشاعر</button>
+      </div>
+
+      <div class="fp-body" id="fp-body">
+        <div style="text-align:center;color:var(--muted);padding:40px 0;font-size:13px">
+          <div class="dots"><span></span><span></span><span></span></div>
+          <div style="margin-top:10px">جاري تحليل السوق...</div>
+        </div>
+      </div>
+    </div>
+
+    <div id="notes-panel" style="display:none">
+      <div class="notes-hd">
+        <span class="notes-ttl">📋 دفتر الملاحظات</span>
+        <button class="notes-x" onclick="toggleNotes()">✕</button>
+      </div>
+      <div class="notes-list" id="notes-list"><p class="notes-empty">لا توجد ملاحظات بعد</p></div>
+      <div class="notes-ft">
+        <input type="text" id="note-input" placeholder="سجّل تحليلاً أو ملاحظة..."
+          onkeydown="if(event.key==='Enter')addNote()" />
+      </div>
+    </div>
+  </div>
+
+  <div id="input-area">
+    <div class="input-box" id="input-box">
+      <textarea id="msg-input" rows="1"
+        placeholder="اسأل البروفيسور... مثال: حلل BTC على الإطار اليومي"
+        oninput="onInput(this)" onkeydown="onKey(event)"></textarea>
+      <button id="send-btn" class="idle" onclick="send()">➤</button>
+    </div>
+    <div class="hint">فوركس · كريبتو · أسهم · ذهب · تحليل فني وأساسي</div>
+  </div>
+</div>
+
+<script>
+/* ── SPLASH ────────────────────────────────────────── */
+setTimeout(() => {
+  const s = document.getElementById('splash');
+  if (s) { s.classList.add('hide'); setTimeout(() => s.remove(), 500); }
+}, 2000);
+
+/* ── PWA INSTALL ───────────────────────────────────── */
+let deferredPrompt = null;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredPrompt = e;
+  setTimeout(() => {
+    const b = document.getElementById('install-banner');
+    if (b) b.style.display = 'block';
+  }, 3000);
+});
+function installApp() {
+  const b = document.getElementById('install-banner');
+  if (deferredPrompt) {
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(() => { deferredPrompt = null; });
+  } else {
+    // iOS / fallback instructions
+    const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+    if (isIOS) {
+      alert('على iPhone:\n1. اضغط زر المشاركة 📤 في Safari\n2. اختر "Add to Home Screen"\n3. اضغط Add ✅');
+    } else {
+      alert('على Android:\n1. افتح القائمة ⋮ في Chrome\n2. اختر "إضافة إلى الشاشة الرئيسية"\n3. اضغط إضافة ✅');
+    }
+  }
+  if (b) b.style.display = 'none';
+}
+function dismissInstall() {
+  const b = document.getElementById('install-banner');
+  if (b) b.style.display = 'none';
+}
+window.addEventListener('appinstalled', () => {
+  const b = document.getElementById('install-banner');
+  if (b) b.style.display = 'none';
+});
+
+/* ── STATE ─────────────────────────────────────────── */
+let API_KEY     = localStorage.getItem('prof_gemini_key') || '';
+let chatHistory = [];
+let notes       = JSON.parse(localStorage.getItem('prof_notes') || '[]');
+let notesOpen   = false;
+let isLoading   = false;
+
+const GEMINI_URL = k => `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${k}`;
+
+/* ── SYSTEM PROMPT ─────────────────────────────────── */
+const SYS = `أنت "الدكتور فيصل الأحمدي" — أستاذ متميز وبروفيسور من الدرجة الأولى في الأسواق المالية العالمية بخبرة حقيقية تمتد لأكثر من 28 عاماً. أنت شخصية محترمة ذات ثقل أكاديمي ومهني استثنائي.
+
+🎓 سيرتك المهنية والأكاديمية:
+- دكتوراه في التمويل الدولي وأسواق رأس المال من جامعة LSE لندن
+- حاصل على شهادات CFA (Chartered Financial Analyst) وCMT (Chartered Market Technician) وFRM
+- عملت كبير المحللين الكميين في Goldman Sachs وJP Morgan لمدة 12 عاماً
+- مستشار سابق لصناديق سيادية خليجية وأوروبية بأصول تتجاوز 40 مليار دولار
+- مؤلف 4 كتب أكاديمية معتمدة في التحليل المالي منشورة بالعربية والإنجليزية
+- درّبت أكثر من 15,000 متداول حول العالم عبر برامج احترافية معتمدة
+- محاضر ضيف في جامعات الكويت وسعود والأمريكية في بيروت ونيويورك
+
+📊 تخصصاتك العلمية:
+- التحليل الفني المتقدم: نظرية Elliott Wave، Dow Theory، أنماط Harmonics، Wyckoff Method
+- المؤشرات الكمية: RSI، MACD، Bollinger Bands، Fibonacci، Ichimoku، Volume Profile
+- التحليل الأساسي: القوائم المالية، KPIs، قراءة تقارير Fed وECB، أحداث الماكرو الاقتصادي
+- إدارة المحافظ: تخصيص الأصول، تحليل الارتباط، نظرية Markowitz الحديثة
+- أسواق الفوركس: أزواج العملات، تأثير الأحداث الاقتصادية، جلسات التداول، carry trade
+- العملات المشفرة: BTC، ETH، Altcoins، DeFi، NFT، blockchain، on-chain analysis
+- الأسواق العالمية: أسهم أمريكية (NYSE، NASDAQ)، خليجية (السعودية، الإمارات، الكويت)، أسيوية وأوروبية
+- السلع: ذهب، فضة، نفط خام (WTI/Brent)، قمح، نحاس
+- المشتقات المالية: عقود آجلة، خيارات مالية، مقايضات
+- الاستراتيجيات: سكالبينج، سوينغ تريدينج، استثمار قيمة طويل الأمد، arbitrage
+
+🗣️ أسلوبك التعليمي والمهني:
+- تتكلم بسلطة الخبير المخضرم — واثق، حاسم، لكن صبور مع المبتدئين
+- تبني إجاباتك بمنهجية أكاديمية: السياق الكلي ← التحليل الدقيق ← التوصية ← إدارة المخاطر
+- تستخدم أرقاماً حقيقية وأمثلة من تجربتك الشخصية في الأسواق
+- تشرح المفاهيم الصعبة بتشبيهات ذكية وسهلة الفهم
+- عند كل تحليل لأصل معين تُقدّم: الاتجاه العام + المستويات الحرجة (دعم/مقاومة) + إشارات المؤشرات + التوصية + وقف الخسارة + هدف الربح + نسبة R:R
+- تُذكّر دائماً بفلسفتك: "البقاء في السوق أهم من الربح السريع"
+- تستخدم رموز 📈📉🟢🔴💡⚠️📐 لتوضيح الإشارات بشكل مرئي
+
+⚠️ تنبيه مهني دائم:
+تختم كل تحليل أو توصية بالعبارة: "⚠️ للأغراض التعليمية — استشر مستشاراً مالياً معتمداً قبل اتخاذ أي قرار استثماري."
+
+إذا سُئلت بالعربية فأجب بالعربية. إذا سُئلت بالإنجليزية فأجب بالإنجليزية.`;
+
+/* ── INIT ──────────────────────────────────────────── */
+window.onload = () => {
+  if (API_KEY) startApp();
+  renderNotes();
+  loadTicker();
+  setInterval(loadTicker, 30000);
+};
+
+/* ── TICKER ────────────────────────────────────────── */
+async function loadTicker() {
+  const pairs = ['BTCUSDT','ETHUSDT','SOLUSDT','BNBUSDT','XRPUSDT','DOGEUSDT'];
+  const cls   = ['btc','eth','sol','bnb','xrp','doge'];
+  try {
+    const res  = await fetch('https://api.binance.com/api/v3/ticker/24hr?symbols=' + JSON.stringify(pairs));
+    const data = await res.json();
+    data.forEach((d, i) => {
+      const p   = parseFloat(d.lastPrice);
+      const ch  = parseFloat(d.priceChangePercent);
+      const up  = ch >= 0;
+      const fmt = p > 1000 ? p.toLocaleString('en-US', {maximumFractionDigits:0})
+                : p > 1    ? p.toLocaleString('en-US', {maximumFractionDigits:3})
+                :             p.toFixed(5);
+      document.querySelectorAll('.' + cls[i] + '-p').forEach(el => el.textContent = '$' + fmt);
+      document.querySelectorAll('.' + cls[i] + '-c').forEach(el => {
+        el.textContent = (up ? '+' : '') + ch.toFixed(2) + '%';
+        el.className   = 'tick-ch ' + cls[i] + '-c ' + (up ? 'up' : 'dn');
+      });
+    });
+  } catch(e) {}
+}
+
+/* ── KEY ───────────────────────────────────────────── */
+function saveKey() {
+  const v = document.getElementById('api-key-input').value.trim();
+  if (v.length < 10) { alert('يرجى إدخال مفتاح صحيح'); return; }
+  API_KEY = v;
+  localStorage.setItem('prof_gemini_key', v);
+  startApp();
+}
+function changeKey() {
+  if (!confirm('تغيير مفتاح API؟')) return;
+  localStorage.removeItem('prof_gemini_key');
+  location.reload();
+}
+function startApp() {
+  document.getElementById('key-modal').style.display = 'none';
+  document.getElementById('app').style.display = 'flex';
+  addBotMsg(`أهلاً وسهلاً، أنا الدكتور فيصل الأحمدي 🎓
+
+بروفيسور في التمويل الدولي وأسواق رأس المال — خبرة 28 عاماً في:
+
+📊 التحليل الفني والأساسي المتقدم
+💱 الفوركس والعملات المشفرة والأسهم
+🥇 الذهب والنفط والسلع العالمية
+📐 إدارة رأس المال والمخاطر المؤسسية
+🎯 استراتيجيات سكالبينج وسوينغ وطويلة الأمد
+
+سواء كنت مبتدئاً أو متداولاً محترفاً — أنا هنا لأرفع مستوى تحليلك.
+
+💡 حكمتي الأولى لك: "المتداول الناجح لا يبحث عن الصفقة المثالية، بل يبحث عن الصفقة ذات نسبة المخاطرة إلى العائد الأفضل. السوق لن يختفي غداً."`);
+}
+
+/* ── UTILS ─────────────────────────────────────────── */
+const nowTime = () => new Date().toLocaleTimeString('ar-EG', {hour:'2-digit', minute:'2-digit'});
+const isAr    = t  => /[\u0600-\u06FF]/.test(t);
+const esc     = t  => t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+const scrollDown = () => { const m = document.getElementById('messages'); setTimeout(() => m.scrollTop = m.scrollHeight, 50); };
+
+/* ── RENDER ────────────────────────────────────────── */
+function addUserMsg(text) {
+  const div = document.createElement('div');
+  div.className = 'msg-row user';
+  const dir = isAr(text) ? 'rtl' : 'ltr';
+  div.innerHTML = `
+    <div class="bubble-wrap">
+      <div class="bubble user" style="direction:${dir};text-align:${dir==='rtl'?'right':'left'}">${esc(text)}</div>
+      <div class="msg-time">${nowTime()}</div>
+    </div>
+    <div class="msg-av user-av">👤</div>`;
+  document.getElementById('messages').appendChild(div);
+  scrollDown();
+}
+
+function addBotMsg(text, loading=false) {
+  const div = document.createElement('div');
+  div.className = 'msg-row bot';
+  const dir = isAr(text) ? 'rtl' : 'ltr';
+  div.innerHTML = `
+    <div class="msg-av bot-av">🎓</div>
+    <div class="bubble-wrap">
+      <div class="bubble bot" style="direction:${dir};text-align:${dir==='rtl'?'right':'left'}">
+        ${loading ? '<div class="dots"><span></span><span></span><span></span></div>' : esc(text)}
+      </div>
+      <div class="msg-time">${nowTime()}</div>
+    </div>`;
+  document.getElementById('messages').appendChild(div);
+  scrollDown();
+  return div.querySelector('.bubble.bot');
+}
+
+/* ── INPUT ─────────────────────────────────────────── */
+function onInput(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 110) + 'px';
+  document.getElementById('send-btn').className = el.value.trim() && !isLoading ? 'ready' : 'idle';
+}
+function onKey(e) { if (e.key==='Enter' && !e.shiftKey) { e.preventDefault(); send(); } }
+function quickSend(t) { document.getElementById('msg-input').value = t; send(); }
+
+/* ── SEND ──────────────────────────────────────────── */
+async function send() {
+  const inp = document.getElementById('msg-input');
+  const msg = inp.value.trim();
+  if (!msg || isLoading) return;
+  inp.value = ''; inp.style.height = 'auto'; onInput(inp);
+  isLoading = true;
+  addUserMsg(msg);
+
+  const local = await handleLocal(msg);
+  if (local !== null) {
+    addBotMsg(local);
+    isLoading = false;
+    return;
+  }
+
+  const bubble = addBotMsg('', true);
+  try {
+    chatHistory.push({ role: 'user', parts: [{ text: msg }] });
+    const res = await fetch(GEMINI_URL(API_KEY), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        system_instruction: { parts: [{ text: SYS }] },
+        contents: chatHistory,
+        generationConfig: { temperature: 0.72, maxOutputTokens: 1400 }
+      })
+    });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error.message);
+    const reply = data.candidates?.[0]?.content?.parts?.[0]?.text || 'عذراً، حاول مجدداً.';
+    chatHistory.push({ role: 'model', parts: [{ text: reply }] });
+    const dir = isAr(reply) ? 'rtl' : 'ltr';
+    bubble.style.direction  = dir;
+    bubble.style.textAlign  = dir === 'rtl' ? 'right' : 'left';
+    bubble.innerHTML = esc(reply);
+  } catch(e) {
+    let msg = e.message || 'تعذّر الاتصال';
+    if (msg.includes('API_KEY_INVALID') || msg.includes('400'))
+      msg = 'المفتاح غير صحيح. اضغط 🔑 لتغييره.';
+    bubble.innerHTML = `❌ ${esc(msg)}`;
+  }
+  isLoading = false;
+  scrollDown();
+}
+
+/* ── LOCAL COMMANDS ────────────────────────────────── */
+async function handleLocal(msg) {
+  const lo = msg.toLowerCase().trim();
+
+  if (['وقت','الوقت','كم الساعة','time'].some(k=>lo.includes(k)))
+    return '🕐 ' + new Date().toLocaleTimeString('ar-EG',{hour:'2-digit',minute:'2-digit',second:'2-digit'})
+         + '\n\n📍 جلسات التداول المفتوحة:\n' + getSessions();
+
+  if (['تاريخ','اليوم','date'].some(k=>lo.includes(k)))
+    return '📅 ' + new Date().toLocaleDateString('ar-EG',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+
+  const calcM = msg.match(/^احسب\s+(.+)$/i) || msg.match(/^calc\s+(.+)$/i);
+  if (calcM) {
+    try { return `🧮 الناتج = ${Function('"use strict";return (' + calcM[1] + ')')()} ` } catch { return '❌ عملية غير صحيحة'; }
+  }
+
+  // Profit calc
+  const pm = msg.match(/ربح\s+([\d.]+)\s+([\d.]+)\s+([\d.]+)/);
+  if (pm) {
+    const [,entry,exit,amt] = pm.map(Number);
+    const pnl = ((exit-entry)/entry*amt).toFixed(2);
+    const pct = ((exit-entry)/entry*100).toFixed(2);
+    const win = exit > entry;
+    return `${win?'🟢 ربح محقق':'🔴 خسارة'}\n\nسعر الدخول:  $${entry}\nسعر الخروج: $${exit}\nرأس المال:   $${amt}\n\n${win?'💰 صافي الربح':'📉 الخسارة'}: $${Math.abs(pnl)} (${Math.abs(pct)}%)\n\n⚠️ ملاحظة البروفيسور: احرص دائماً على تحديد وقف الخسارة قبل الدخول!`;
+  }
+
+  // Risk calc
+  const rm = msg.match(/خطر\s+([\d.]+)\s+([\d.]+)\s+([\d.]+)/);
+  if (rm) {
+    const [,cap,riskPct,slPct] = rm.map(Number);
+    const riskAmt = (cap * riskPct/100).toFixed(2);
+    const posSize = (riskAmt / (slPct/100)).toFixed(2);
+    return `📐 حاسبة إدارة المخاطر المهنية\n\nرأس المال:           $${cap}\nنسبة المخاطرة:      ${riskPct}%\nمسافة وقف الخسارة: ${slPct}%\n\n💰 المبلغ المعرض للخطر: $${riskAmt}\n📦 الحجم الأمثل للصفقة:  $${posSize}\n\n✅ توصية البروفيسور: لا تتجاوز 1-2% من رأس المال في أي صفقة واحدة. هذا ليس جبناً — هذا هو ما يُبقيك في السوق.`;
+  }
+
+  if (['توقعات','توقع','forecast','تنبؤ'].some(k=>lo.includes(k)) && !lo.includes('btc') && !lo.includes('eth') && !lo.includes('بيتكوين') && !lo.includes('اعطني توقع')) {
+    if (fpOpen) { switchFpTab('crypto'); } else { toggleForecast(); }
+    return 'تم فتح لوحة التوقعات الحية 🔮 — ستجد توقعات BTC، ETH، SOL مع تحليل الذكاء الاصطناعي!';
+  }
+
+  if (lo.includes('بيتكوين')||lo.includes('btc')) return await getPrice('BTCUSDT','Bitcoin ₿','BTC');
+  if (lo.includes('إيثيريوم')||lo.includes('ايثيريوم')||lo.includes('eth')) return await getPrice('ETHUSDT','Ethereum Ξ','ETH');
+  if (lo.includes('سولانا')||lo.includes('sol')) return await getPrice('SOLUSDT','Solana ◎','SOL');
+  if (lo.includes('bnb')) return await getPrice('BNBUSDT','BNB 🟡','BNB');
+  if (lo.includes('xrp')||lo.includes('ريبل')) return await getPrice('XRPUSDT','XRP 💧','XRP');
+  if (lo.includes('doge')||lo.includes('دوج')) return await getPrice('DOGEUSDT','Dogecoin 🐕','DOGE');
+
+  const sv = msg.match(/^(احفظ|سجل)\s+(.+)$/i);
+  if (sv) { addNoteText(sv[2]); return `✅ تم التسجيل في دفتر الملاحظات:\n"${sv[2]}"`; }
+
+  if (['ملاحظات','notes','سجلاتي'].some(k=>lo.includes(k))) {
+    openNotes();
+    return notes.length ? `لديك ${notes.length} ملاحظة في الدفتر. تم فتحه.` : 'الدفتر فارغ — ابدأ بتسجيل تحليلاتك!';
+  }
+
+  if (['مساعدة','help','ماذا تعرف','قدرات'].some(k=>lo.includes(k)))
+    return `📚 قدرات البروفيسور د. فيصل:\n\n📊 التحليل الفني: شموع، أنماط، RSI، MACD، Fibonacci، Bollinger، Ichimoku\n📰 التحليل الأساسي: أخبار، قرارات الفائدة، أحداث اقتصادية كبرى\n💱 الأسواق: فوركس، كريبتو، أسهم، ذهب، نفط، سلع\n📐 إدارة رأس المال والمخاطر المؤسسية\n🎯 الاستراتيجيات: سكالبينج، سوينغ، بوزيشن تريدينج\n\n🧮 أوامر مباشرة:\n• "سعر BTC/ETH/SOL/BNB/XRP"\n• "ربح [دخول] [خروج] [رأس المال]"\n• "خطر [رأس المال] [نسبة الخطر%] [وقف الخسارة%]"\n• "احسب [عملية]"\n• "احفظ [ملاحظة]"`;
+
+  return null;
+}
+
+function getSessions() {
+  const h = new Date().getUTCHours();
+  const s = [];
+  if (h>=22||h<7) s.push('🗼 طوكيو   (22:00 – 07:00 UTC)');
+  if (h>=7&&h<16) s.push('🏦 لندن    (07:00 – 16:00 UTC)');
+  if (h>=13&&h<22) s.push('🗽 نيويورك (13:00 – 22:00 UTC)');
+  return s.length ? s.join('\n') : '😴 لا توجد جلسات رئيسية مفتوحة حالياً';
+}
+
+async function getPrice(sym, name, ticker) {
+  try {
+    const [pr, cr] = await Promise.all([
+      fetch(`https://api.binance.com/api/v3/ticker/price?symbol=${sym}`),
+      fetch(`https://api.binance.com/api/v3/ticker/24hr?symbol=${sym}`)
+    ]);
+    const pd = await pr.json(); const cd = await cr.json();
+    const price = parseFloat(pd.price), ch = parseFloat(cd.priceChangePercent);
+    const high  = parseFloat(cd.highPrice), low = parseFloat(cd.lowPrice);
+    const vol   = parseFloat(cd.volume), up = ch >= 0;
+    const fmt = v => v > 1000 ? v.toLocaleString('en-US',{maximumFractionDigits:0}) : v > 1 ? v.toFixed(3) : v.toFixed(5);
+    return `${name} — التحليل اللحظي\n\n💵 السعر الحالي: $${fmt(price)}\n${up?'🟢':'🔴'} التغير 24س:   ${up?'+':''}${ch.toFixed(2)}%\n📈 أعلى 24س:    $${fmt(high)}\n📉 أدنى 24س:    $${fmt(low)}\n📦 حجم التداول: ${vol.toLocaleString()} ${ticker}\n\n💡 قراءة د. فيصل: السعر ${up?'في اتجاه صاعد':'في اتجاه هابط'} — راقب ${up?'كسر '+fmt(high)+' للتأكيد':'الدعم عند '+fmt(low)} كإشارة ${up?'استمرار':'انعكاس'} محتملة.\n\n⚠️ للأغراض التعليمية — استشر مستشاراً مالياً قبل الاستثمار.`;
+  } catch { return '❌ تعذّر جلب السعر من Binance. حاول لاحقاً.'; }
+}
+
+/* ── FORECAST PANEL ────────────────────────────────── */
+let fpOpen    = false;
+let fpTab     = 'crypto';
+let fpData    = {};
+let fpLoading = false;
+
+function toggleForecast() {
+  fpOpen = !fpOpen;
+  document.getElementById('forecast-panel').style.display = fpOpen ? 'flex' : 'none';
+  document.getElementById('forecast-btn').classList.toggle('on', fpOpen);
+  if (fpOpen) loadForecast();
+}
+
+function switchFpTab(tab) {
+  fpTab = tab;
+  document.querySelectorAll('.fp-tab').forEach((t,i) => {
+    t.classList.toggle('active', ['crypto','macro','sentiment'][i] === tab);
+  });
+  renderForecast();
+}
+
+async function loadForecast() {
+  if (fpLoading) return;
+  fpLoading = true;
+  document.getElementById('fp-body').innerHTML = `
+    <div style="text-align:center;color:var(--muted);padding:40px 0;font-size:13px">
+      <div class="dots"><span></span><span></span><span></span></div>
+      <div style="margin-top:10px">جاري جلب البيانات الحية...</div>
+    </div>`;
+  try {
+    const pairs = ['BTCUSDT','ETHUSDT','SOLUSDT','BNBUSDT','XRPUSDT'];
+    const res = await fetch('https://api.binance.com/api/v3/ticker/24hr?symbols=' + JSON.stringify(pairs));
+    const data = await res.json();
+    fpData.crypto = data;
+  } catch(e) { fpData.crypto = null; }
+  fpLoading = false;
+  renderForecast();
+}
+
+function renderForecast() {
+  if (fpTab === 'crypto') renderCrypto();
+  else if (fpTab === 'macro') renderMacro();
+  else renderSentiment();
+}
+
+const ASSETS = [
+  { sym:'BTCUSDT', name:'Bitcoin', icon:'₿', pair:'BTC/USDT', color:'#f7931a' },
+  { sym:'ETHUSDT', name:'Ethereum', icon:'Ξ', pair:'ETH/USDT', color:'#627eea' },
+  { sym:'SOLUSDT', name:'Solana', icon:'◎', pair:'SOL/USDT', color:'#9945ff' },
+  { sym:'BNBUSDT', name:'BNB', icon:'🟡', pair:'BNB/USDT', color:'#f3ba2f' },
+  { sym:'XRPUSDT', name:'XRP', icon:'💧', pair:'XRP/USDT', color:'#00aae4' },
+];
+
+function renderCrypto() {
+  if (!fpData.crypto) {
+    document.getElementById('fp-body').innerHTML = '<p style="color:var(--muted);text-align:center;padding:30px">تعذّر جلب البيانات. تحقق من الاتصال.</p>';
+    return;
+  }
+  const fmt = v => v > 1000 ? '$' + v.toLocaleString('en-US',{maximumFractionDigits:0})
+                 : v > 1    ? '$' + v.toFixed(2)
+                 :             '$' + v.toFixed(4);
+
+  let html = '';
+  fpData.crypto.forEach((d, i) => {
+    const a    = ASSETS[i];
+    const price = parseFloat(d.lastPrice);
+    const ch    = parseFloat(d.priceChangePercent);
+    const high  = parseFloat(d.highPrice);
+    const low   = parseFloat(d.lowPrice);
+    const vol24 = parseFloat(d.quoteVolume); // USDT volume
+    const up    = ch >= 0;
+
+    // Simple signal logic
+    const range = high - low;
+    const pos   = range > 0 ? (price - low) / range : 0.5; // 0=near low, 1=near high
+    const bullScore = Math.round(pos * 60 + (up ? 20 : 0) + (Math.abs(ch) > 3 ? 10 : 0) + (vol24 > 1e9 ? 10 : 0));
+    const clampedBull = Math.min(90, Math.max(20, bullScore));
+
+    // Targets
+    const sl  = fmt(price * (up ? 0.965 : 1.035));
+    const tp1 = fmt(price * (up ? 1.04  : 0.96));
+    const tp2 = fmt(price * (up ? 1.09  : 0.91));
+
+    // Indicators (simple heuristic)
+    const rsiEst   = Math.round(40 + pos * 40);
+    const rsiClass = rsiEst > 65 ? 'bear' : rsiEst < 40 ? 'bull' : 'neut';
+    const rsiLbl   = rsiEst > 65 ? 'تشبع شراء' : rsiEst < 40 ? 'تشبع بيع' : 'محايد';
+    const macdCls  = up ? 'bull' : 'bear';
+    const macdLbl  = up ? 'MACD ↑' : 'MACD ↓';
+    const trendCls = ch > 2 ? 'bull' : ch < -2 ? 'bear' : 'neut';
+    const trendLbl = ch > 2 ? 'صاعد قوي' : ch < -2 ? 'هابط قوي' : 'عرضي';
+
+    const sig = clampedBull >= 60
+      ? { icon:'🟢', text: `<strong>توصية:</strong> احتمالية الصعود ${clampedBull}% — منطقة تراكم محتملة.` }
+      : clampedBull <= 40
+      ? { icon:'🔴', text: `<strong>توصية:</strong> احتمالية الهبوط ${100-clampedBull}% — انتظر تأكيداً.` }
+      : { icon:'🟡', text: `<strong>توصية:</strong> السوق عرضي — انتظر كسر واضح.` };
+
+    html += `
+    <div class="fc-card">
+      <div class="fc-head">
+        <div class="fc-asset">
+          <div class="fc-icon">${a.icon}</div>
+          <div>
+            <div class="fc-name">${a.name}</div>
+            <div class="fc-pair">${a.pair}</div>
+          </div>
+        </div>
+        <div class="fc-price-now">
+          <div class="fc-pnow">${fmt(price)}</div>
+          <div class="fc-ch ${up?'up':'dn'}">${up?'+':''}${ch.toFixed(2)}% 24h</div>
+        </div>
+      </div>
+      <div class="fc-body">
+        <div class="fc-sentiment">
+          <span style="font-size:10px;color:var(--muted);min-width:28px">${clampedBull}%</span>
+          <div class="fc-sent-bar">
+            <div class="fc-sent-fill" style="width:${clampedBull}%;background:${clampedBull>=60?'var(--green)':clampedBull<=40?'var(--red)':'var(--gold)'}"></div>
+          </div>
+          <span class="fc-sent-label" style="color:${clampedBull>=60?'var(--green)':clampedBull<=40?'var(--red)':'var(--gold)'}">
+            ${clampedBull>=60?'صاعد':clampedBull<=40?'هابط':'عرضي'}
+          </span>
+        </div>
+
+        <div class="fc-targets">
+          <div class="fc-target">
+            <div class="fc-t-lbl">🛑 وقف الخسارة</div>
+            <div class="fc-t-val" style="color:var(--red)">${sl}</div>
+            <div class="fc-t-pct" style="color:var(--red)">${up?'-3.5%':'+3.5%'}</div>
+          </div>
+          <div class="fc-target">
+            <div class="fc-t-lbl">🎯 هدف 1</div>
+            <div class="fc-t-val" style="color:var(--green)">${tp1}</div>
+            <div class="fc-t-pct" style="color:var(--green)">${up?'+4%':'-4%'}</div>
+          </div>
+          <div class="fc-target">
+            <div class="fc-t-lbl">🚀 هدف 2</div>
+            <div class="fc-t-val" style="color:var(--green)">${tp2}</div>
+            <div class="fc-t-pct" style="color:var(--green)">${up?'+9%':'-9%'}</div>
+          </div>
+        </div>
+
+        <div class="fc-indicators">
+          <span class="fc-ind ${rsiClass}">RSI~${rsiEst} ${rsiLbl}</span>
+          <span class="fc-ind ${macdCls}">${macdLbl}</span>
+          <span class="fc-ind ${trendCls}">الاتجاه: ${trendLbl}</span>
+          <span class="fc-ind neut">24h Vol: $${(vol24/1e9).toFixed(1)}B</span>
+        </div>
+
+        <div class="fc-signal">
+          <span class="fc-sig-icon">${sig.icon}</span>
+          <span class="fc-sig-text">${sig.text}</span>
+        </div>
+
+        <button class="fc-ai-btn" id="ai-btn-${i}" onclick="getAIForecast('${a.name}', ${price}, ${ch}, ${high}, ${low}, ${i})">
+          🎓 تحليل البروفيسور بالذكاء الاصطناعي
+        </button>
+        <div class="fc-ai-result" id="ai-res-${i}"></div>
+      </div>
+    </div>`;
+  });
+
+  html += `<button class="fp-refresh" onclick="loadForecast()">🔄 تحديث البيانات</button>
+    <p style="font-size:10px;color:var(--muted);text-align:center;padding:0 0 14px">⚠️ للأغراض التعليمية فقط — ليس توصية استثمارية</p>`;
+  document.getElementById('fp-body').innerHTML = html;
+}
+
+function renderMacro() {
+  const h = new Date().getUTCHours();
+  const sessions = [];
+  if (h>=22||h<7)  sessions.push('🗼 طوكيو — مفتوحة');
+  if (h>=7&&h<16)  sessions.push('🏦 لندن — مفتوحة');
+  if (h>=13&&h<22) sessions.push('🗽 نيويورك — مفتوحة');
+  const sessStr = sessions.length ? sessions.join(' | ') : '😴 لا توجد جلسات رئيسية مفتوحة';
+
+  document.getElementById('fp-body').innerHTML = `
+    <div class="macro-card">
+      <div class="macro-head">
+        <span class="macro-icon">🌍</span>
+        <div>
+          <div class="macro-title">جلسات التداول العالمية</div>
+          <div class="macro-sub">${sessStr}</div>
+        </div>
+      </div>
+      <div class="macro-body">
+        <div class="macro-row"><span class="macro-key">🗼 طوكيو</span><span class="macro-val ${h>=22||h<7?'mv-g':''}">22:00 – 07:00 UTC</span></div>
+        <div class="macro-row"><span class="macro-key">🏦 لندن</span><span class="macro-val ${h>=7&&h<16?'mv-g':''}">07:00 – 16:00 UTC</span></div>
+        <div class="macro-row"><span class="macro-key">🗽 نيويورك</span><span class="macro-val ${h>=13&&h<22?'mv-g':''}">13:00 – 22:00 UTC</span></div>
+        <div class="macro-row"><span class="macro-key">⏰ الوقت الآن</span><span class="macro-val mv-y">${new Date().toUTCString().slice(17,22)} UTC</span></div>
+      </div>
+    </div>
+
+    <div class="macro-card">
+      <div class="macro-head">
+        <span class="macro-icon">📊</span>
+        <div>
+          <div class="macro-title">المؤشرات الاقتصادية الكبرى</div>
+          <div class="macro-sub">قراءة الماكرو الحالية</div>
+        </div>
+      </div>
+      <div class="macro-body">
+        <div class="macro-row"><span class="macro-key">🏦 سياسة Fed</span><span class="macro-val mv-y">تشديد نقدي</span></div>
+        <div class="macro-row"><span class="macro-key">💵 مؤشر الدولار DXY</span><span class="macro-val mv-r">ضغط على الأصول الخطرة</span></div>
+        <div class="macro-row"><span class="macro-key">🥇 الذهب</span><span class="macro-val mv-g">ملاذ آمن نشط</span></div>
+        <div class="macro-row"><span class="macro-key">🛢️ النفط WTI</span><span class="macro-val mv-y">تذبذب بسبب الجيوسياسية</span></div>
+        <div class="macro-row"><span class="macro-key">📈 S&P 500</span><span class="macro-val mv-g">ارتباط إيجابي مع كريبتو</span></div>
+      </div>
+    </div>
+
+    <div class="macro-card">
+      <div class="macro-head">
+        <span class="macro-icon">🎓</span>
+        <div>
+          <div class="macro-title">رأي البروفيسور في الماكرو</div>
+          <div class="macro-sub">تحليل شامل للبيئة الاقتصادية</div>
+        </div>
+      </div>
+      <div class="macro-body">
+        <p style="font-size:12px;color:var(--text2);line-height:1.8">
+          متداول محترف يتابع 3 عوامل ماكرو أساسية قبل أي صفقة:
+        </p>
+        <div style="margin-top:10px;display:flex;flex-direction:column;gap:7px">
+          <div class="fc-signal"><span class="fc-sig-icon">1️⃣</span><span class="fc-sig-text"><strong>قرارات الفائدة:</strong> رفع الفائدة = ضغط على البيتكوين والأسهم. خفضها = وقود للصعود.</span></div>
+          <div class="fc-signal"><span class="fc-sig-icon">2️⃣</span><span class="fc-sig-text"><strong>مؤشر الدولار DXY:</strong> الدولار قوي = كريبتو ضعيف. الدولار ضعيف = كريبتو قوي.</span></div>
+          <div class="fc-signal"><span class="fc-sig-icon">3️⃣</span><span class="fc-sig-text"><strong>سوق الأسهم S&P 500:</strong> هبوط حاد في الأسهم = هبوط مصاحب في البيتكوين عادةً.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <button class="fc-ai-btn" onclick="getAIMacro()">🎓 تحليل الماكرو بالذكاء الاصطناعي</button>
+    <div class="fc-ai-result" id="ai-macro-res"></div>
+    <p style="font-size:10px;color:var(--muted);text-align:center;margin-top:12px;padding-bottom:14px">⚠️ للأغراض التعليمية فقط</p>
+  `;
+}
+
+function renderSentiment() {
+  // Simulate Fear & Greed with crypto price data
+  let fgScore = 50;
+  if (fpData.crypto) {
+    const changes = fpData.crypto.map(d => parseFloat(d.priceChangePercent));
+    const avg = changes.reduce((a,b)=>a+b,0)/changes.length;
+    fgScore = Math.min(95, Math.max(5, Math.round(50 + avg * 3)));
+  }
+  const fgLabel = fgScore >= 75 ? 'جشع شديد' : fgScore >= 55 ? 'جشع' : fgScore >= 45 ? 'محايد' : fgScore >= 25 ? 'خوف' : 'خوف شديد';
+  const fgColor = fgScore >= 55 ? 'var(--green)' : fgScore <= 45 ? 'var(--red)' : 'var(--gold)';
+  const fgDesc  = fgScore >= 75 ? 'السوق في منطقة جشع — احذر من الانعكاس!'
+                : fgScore >= 55 ? 'تفاؤل سائد — استمر بحذر'
+                : fgScore >= 45 ? 'تردد — السوق يبحث عن اتجاه'
+                : fgScore >= 25 ? 'مخاوف سائدة — قد تكون فرصة شراء'
+                : 'ذعر شديد — فرص تاريخية للمتداول الصبور';
+
+  document.getElementById('fp-body').innerHTML = `
+    <div class="fg-wrap">
+      <div class="fg-title">🧠 مؤشر الخوف والجشع — Fear & Greed</div>
+      <div class="fg-meter">
+        <div class="fg-needle" style="left:${fgScore}%"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:9px;color:var(--muted);margin-bottom:4px">
+        <span>خوف شديد</span><span>محايد</span><span>جشع شديد</span>
+      </div>
+      <div class="fg-score" style="color:${fgColor}">${fgScore}</div>
+      <div class="fg-label" style="color:${fgColor}">${fgLabel}</div>
+      <div class="fg-desc">${fgDesc}</div>
+    </div>
+
+    <div class="macro-card">
+      <div class="macro-head">
+        <span class="macro-icon">📡</span>
+        <div>
+          <div class="macro-title">توزيع المشاعر في السوق</div>
+          <div class="macro-sub">مبني على أداء الأصول الـ 24 ساعة</div>
+        </div>
+      </div>
+      <div class="macro-body">
+        ${fpData.crypto ? fpData.crypto.map((d,i)=>{
+          const ch = parseFloat(d.priceChangePercent);
+          const a  = ASSETS[i];
+          const w  = Math.min(95, Math.max(5, Math.round(50 + ch * 4)));
+          return `<div class="macro-row">
+            <span class="macro-key">${a.icon} ${a.name}</span>
+            <span style="display:flex;align-items:center;gap:6px">
+              <span style="width:60px;height:5px;background:var(--bg4);border-radius:3px;display:inline-block;overflow:hidden">
+                <span style="display:block;height:100%;width:${w}%;background:${ch>=0?'var(--green)':'var(--red)'};border-radius:3px"></span>
+              </span>
+              <span class="macro-val ${ch>=0?'mv-g':'mv-r'}">${ch>=0?'+':''}${ch.toFixed(2)}%</span>
+            </span>
+          </div>`;
+        }).join('') : '<p style="color:var(--muted);text-align:center">لا توجد بيانات</p>'}
+      </div>
+    </div>
+
+    <div class="macro-card">
+      <div class="macro-head"><span class="macro-icon">🎓</span><div>
+        <div class="macro-title">كيف يقرأ البروفيسور مؤشر الخوف؟</div>
+      </div></div>
+      <div class="macro-body" style="display:flex;flex-direction:column;gap:7px;padding-top:10px">
+        <div class="fc-signal"><span class="fc-sig-icon">😱</span><span class="fc-sig-text"><strong>0–25 خوف شديد:</strong> أفضل وقت للتراكم التدريجي للمستثمر الصبور.</span></div>
+        <div class="fc-signal"><span class="fc-sig-icon">😰</span><span class="fc-sig-text"><strong>25–45 خوف:</strong> فرص انتقائية — ابحث عن أصول قوية تصمد.</span></div>
+        <div class="fc-signal"><span class="fc-sig-icon">😐</span><span class="fc-sig-text"><strong>45–55 محايد:</strong> انتظر — السوق يبحث عن محفز.</span></div>
+        <div class="fc-signal"><span class="fc-sig-icon">😏</span><span class="fc-sig-text"><strong>55–75 جشع:</strong> تأكد من وقف خسارتك — لا تطمع.</span></div>
+        <div class="fc-signal"><span class="fc-sig-icon">🤑</span><span class="fc-sig-text"><strong>75–100 جشع شديد:</strong> وقت جني الأرباح — السوق يستعد للتصحيح.</span></div>
+      </div>
+    </div>
+
+    <button class="fc-ai-btn" onclick="getAISentiment(${fgScore}, '${fgLabel}')">🎓 رأي البروفيسور في المشاعر الحالية</button>
+    <div class="fc-ai-result" id="ai-sent-res"></div>
+    <p style="font-size:10px;color:var(--muted);text-align:center;margin-top:12px;padding-bottom:14px">⚠️ للأغراض التعليمية فقط</p>
+  `;
+}
+
+async function getAIForecast(name, price, ch, high, low, idx) {
+  if (!API_KEY) { alert('أدخل مفتاح Gemini أولاً'); return; }
+  const btn = document.getElementById(`ai-btn-${idx}`);
+  const res = document.getElementById(`ai-res-${idx}`);
+  if (btn.classList.contains('loading')) return;
+  btn.classList.add('loading'); btn.textContent = '⏳ البروفيسور يحلل...';
+  res.style.display = 'block'; res.innerHTML = '<div class="dots"><span></span><span></span><span></span></div>';
+
+  const prompt = `أنت د. فيصل الأحمدي — بروفيسور التداول. قدم توقعاً احترافياً موجزاً لـ ${name}:
+السعر الحالي: $${price.toFixed(2)}
+التغير 24س: ${ch.toFixed(2)}%
+أعلى 24س: $${high.toFixed(2)}
+أدنى 24س: $${low.toFixed(2)}
+
+اكتب في 5-7 أسطر فقط: السيناريو الأكثر احتمالاً، المستويات الحرجة، التوصية مع وقف الخسارة والهدف، وختام مهني.`;
+
+  try {
+    const r = await fetch(GEMINI_URL(API_KEY), {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        system_instruction:{ parts:[{ text: SYS }] },
+        contents:[{ role:'user', parts:[{ text: prompt }] }],
+        generationConfig:{ temperature:0.7, maxOutputTokens:400 }
+      })
+    });
+    const d = await r.json();
+    const txt = d.candidates?.[0]?.content?.parts?.[0]?.text || 'تعذّر التحليل';
+    res.innerHTML = esc(txt);
+  } catch(e) { res.innerHTML = '❌ تعذّر جلب التحليل'; }
+  btn.classList.remove('loading'); btn.innerHTML = '✅ تم التحليل — أعد التحليل';
+}
+
+async function getAIMacro() {
+  if (!API_KEY) { alert('أدخل مفتاح Gemini أولاً'); return; }
+  const btn = document.querySelector('[onclick="getAIMacro()"]');
+  const res = document.getElementById('ai-macro-res');
+  btn.classList.add('loading'); btn.textContent = '⏳ جاري التحليل...';
+  res.style.display = 'block'; res.innerHTML = '<div class="dots"><span></span><span></span><span></span></div>';
+  const prompt = `أنت د. فيصل الأحمدي. قدم تحليلاً ماكرو اقتصادياً موجزاً (6-8 أسطر) للبيئة الحالية وتأثيرها على أسواق الكريبتو والفوركس. ركز على: سياسة Fed، مؤشر الدولار، علاقة الكريبتو بالأسهم، وأهم توقع للفترة القادمة.`;
+  try {
+    const r = await fetch(GEMINI_URL(API_KEY), {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({ system_instruction:{parts:[{text:SYS}]}, contents:[{role:'user',parts:[{text:prompt}]}], generationConfig:{temperature:0.7,maxOutputTokens:450} })
+    });
+    const d = await r.json();
+    res.innerHTML = esc(d.candidates?.[0]?.content?.parts?.[0]?.text || 'تعذّر');
+  } catch { res.innerHTML = '❌ تعذّر جلب التحليل'; }
+  btn.classList.remove('loading'); btn.innerHTML = '✅ تم — أعد التحليل';
+}
+
+async function getAISentiment(score, label) {
+  if (!API_KEY) { alert('أدخل مفتاح Gemini أولاً'); return; }
+  const btn = document.querySelector(`[onclick="getAISentiment(${score}, '${label}')"]`);
+  const res = document.getElementById('ai-sent-res');
+  btn.classList.add('loading'); btn.textContent = '⏳ جاري التحليل...';
+  res.style.display = 'block'; res.innerHTML = '<div class="dots"><span></span><span></span><span></span></div>';
+  const prompt = `أنت د. فيصل الأحمدي. مؤشر الخوف والجشع الآن ${score}/100 — "${label}". قدم قراءتك الاحترافية في 5-6 أسطر: ماذا يعني هذا للمتداول؟ ما الاستراتيجية المناسبة؟ وما تحذيراتك؟`;
+  try {
+    const r = await fetch(GEMINI_URL(API_KEY), {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({ system_instruction:{parts:[{text:SYS}]}, contents:[{role:'user',parts:[{text:prompt}]}], generationConfig:{temperature:0.7,maxOutputTokens:400} })
+    });
+    const d = await r.json();
+    res.innerHTML = esc(d.candidates?.[0]?.content?.parts?.[0]?.text || 'تعذّر');
+  } catch { res.innerHTML = '❌ تعذّر'; }
+  btn.classList.remove('loading'); btn.innerHTML = '✅ تم — أعد التحليل';
+}
+
+/* ── NOTES ─────────────────────────────────────────── */
+function toggleNotes() {
+  notesOpen = !notesOpen;
+  document.getElementById('notes-panel').style.display = notesOpen ? 'flex' : 'none';
+  document.getElementById('notes-btn').classList.toggle('on', notesOpen);
+}
+function openNotes() {
+  notesOpen = true;
+  document.getElementById('notes-panel').style.display = 'flex';
+  document.getElementById('notes-btn').classList.add('on');
+}
+function addNote() {
+  const i = document.getElementById('note-input');
+  addNoteText(i.value.trim()); i.value = '';
+}
+function addNoteText(t) {
+  if (!t) return;
+  notes.unshift({text:t, time:nowTime()});
+  localStorage.setItem('prof_notes', JSON.stringify(notes));
+  renderNotes(); openNotes();
+}
+function deleteNote(i) {
+  notes.splice(i,1);
+  localStorage.setItem('prof_notes', JSON.stringify(notes));
+  renderNotes();
+}
+function renderNotes() {
+  const list = document.getElementById('notes-list');
+  if (!list) return;
+  if (!notes.length) { list.innerHTML = '<p class="notes-empty">سجّل تحليلاتك وأفكارك هنا</p>'; return; }
+  list.innerHTML = notes.map((n,i) => `
+    <div class="note-card">
+      <button class="note-del" onclick="deleteNote(${i})">✕</button>
+      <div class="note-txt" style="direction:${isAr(n.text)?'rtl':'ltr'}">${esc(n.text)}</div>
+      <div class="note-ts">${n.time}</div>
+    </div>`).join('');
+}
+
+/* ── CLEAR ─────────────────────────────────────────── */
+function clearChat() {
+  if (!confirm('بدء جلسة جديدة مع البروفيسور؟')) return;
+  chatHistory = [];
+  document.getElementById('messages').innerHTML = '';
+  addBotMsg('جلسة جديدة ✨\n\nما الذي تريد تحليله اليوم يا صديقي؟ الأسواق في انتظارنا.');
+}
+
+/* ── FOCUS ─────────────────────────────────────────── */
+document.addEventListener('DOMContentLoaded', () => {
+  const inp = document.getElementById('msg-input');
+  if (!inp) return;
+  inp.addEventListener('focus', () => document.getElementById('input-box').classList.add('on'));
+  inp.addEventListener('blur',  () => document.getElementById('input-box').classList.remove('on'));
+});
+</script>
+</body>
+</html>
